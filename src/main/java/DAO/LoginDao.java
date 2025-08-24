@@ -38,9 +38,7 @@ public class LoginDao {
 //                                                props.getProperty("db.username"),
 //                                                props.getProperty("db.password"));
 
-        System.out.println("DB_URL=" + DB_URL);
-        System.out.println("DB_USER=" + DB_USER);
-
+ 
 
             conn = DriverManager.getConnection(DB_URL,DB_USER,DB_PASS);
             
@@ -62,7 +60,7 @@ public class LoginDao {
         String password = student.getPassword();
         
         try{
-            String query = "Select * from Student where matric_number = ? And password = ?";
+            String query = "Select * from student where matric_number = ? And password = ?";
             con = LoginDao.getConnection();
             
             ps = con.prepareStatement(query);
