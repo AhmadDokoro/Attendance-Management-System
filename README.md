@@ -2,7 +2,6 @@
 
 ![Java](https://img.shields.io/badge/Java-17-red)  
 ![Maven](https://img.shields.io/badge/Maven-3.9-blue)  
-![Jetty](https://img.shields.io/badge/Jetty-11.0.15-orange)  
 ![MySQL](https://img.shields.io/badge/MySQL-8.0-green)  
 ![JSP/Servlet](https://img.shields.io/badge/JSP-Servlet-yellow)  
 ![Status](https://img.shields.io/badge/Deployed-Live-brightgreen)  
