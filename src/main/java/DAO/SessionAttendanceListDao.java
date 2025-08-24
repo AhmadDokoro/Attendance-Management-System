@@ -20,8 +20,8 @@ public class SessionAttendanceListDao {
 
         try (Connection con = LoginDao.getConnection()) {
             String sql = "SELECT s.matric_number, s.name, a.scan_time, a.ip_address " +
-                         "FROM Attendance a " +
-                         "JOIN Student s ON a.student_id = s.student_id " +
+                         "FROM attendance a " +
+                         "JOIN student s ON a.student_id = s.student_id " +
                          "WHERE a.session_id = ?";
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setInt(1, sessionId);

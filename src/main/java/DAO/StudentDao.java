@@ -55,7 +55,7 @@ public class StudentDao {
         boolean allSaved = true;
 
         try (Connection con = LoginDao.getConnection()) {
-            String sql = "INSERT INTO Attendance (student_id, session_id, marked_by_lecturer) VALUES (?, ?, ?)";
+            String sql = "INSERT INTO attendance (student_id, session_id, marked_by_lecturer) VALUES (?, ?, ?)";
             PreparedStatement ps = con.prepareStatement(sql);
 
             for (String id : studentIds) {

@@ -16,7 +16,7 @@ public class SessionDao {
         int sessionId = -1;
 
         try (Connection con = LoginDao.getConnection()) {
-            String sql = "INSERT INTO Session (lecturer_id, group_id, course_code, program_type, location, start_time, end_time, duration, date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO session (lecturer_id, group_id, course_code, program_type, location, start_time, end_time, duration, date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
             PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 
             ps.setInt(1, session.getLecturerId());
@@ -48,8 +48,8 @@ public class SessionDao {
 
     try (Connection con = LoginDao.getConnection()) {
         String sql = "SELECT s.*, g.group_name " +
-                     "FROM Session s " +
-                     "JOIN GroupTable g ON s.group_id = g.group_id " +
+                     "FROM session s " +
+                     "JOIN grouptable g ON s.group_id = g.group_id " +
                      "WHERE s.session_id = ?";
         PreparedStatement ps = con.prepareStatement(sql);
         ps.setInt(1, sessionId);
@@ -82,7 +82,7 @@ public class SessionDao {
     public static Session getSessionByIdForUpdateAttendance(int sessionId) {
     Session session = null;
     try (Connection con = LoginDao.getConnection()) {
-        String sql = "SELECT * FROM Session WHERE session_id = ?";
+        String sql = "SELECT * FROM session WHERE session_id = ?";
         PreparedStatement ps = con.prepareStatement(sql);
         ps.setInt(1, sessionId);
         ResultSet rs = ps.executeQuery();
@@ -120,9 +120,9 @@ public class SessionDao {
 
         try (Connection con = LoginDao.getConnection()) {
             String sql = "SELECT g.group_id, g.group_name, g.course_code, c.course_name " +
-                         "FROM GroupTable g " +
-                         "JOIN CourseGroup cg ON g.group_id = cg.group_id " +
-                         "JOIN Course c ON g.course_code = c.course_code " +
+                         "FROM grouptable g " +
+                         "JOIN coursecroup cg ON g.group_id = cg.group_id " +
+                         "JOIN course c ON g.course_code = c.course_code " +
                          "WHERE cg.lecturer_id = ?";
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setInt(1, lecturerId);
@@ -151,8 +151,8 @@ public class SessionDao {
         List<Group> groupList = new ArrayList<>();
 
         try (Connection con = LoginDao.getConnection()) {
-            String sql = "SELECT g.group_id, g.group_name FROM GroupTable g " +
-                         "JOIN CourseGroup cg ON g.group_id = cg.group_id " +
+            String sql = "SELECT g.group_id, g.group_name FROM grouptable g " +
+                         "JOIN coursegroup cg ON g.group_id = cg.group_id " +
                          "WHERE cg.lecturer_id = ?";
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setInt(1, lecturerId);

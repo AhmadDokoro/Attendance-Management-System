@@ -11,9 +11,9 @@ public class CourseDAO {
 
         try (Connection conn = LoginDao.getConnection()) {
             String query = "SELECT DISTINCT c.course_code, c.course_name " +
-                           "FROM Course c " +
-                           "JOIN GroupTable g ON c.course_code = g.course_code " +
-                           "JOIN CourseGroup cg ON g.group_id = cg.group_id " +
+                           "FROM course c " +
+                           "JOIN grouptable g ON c.course_code = g.course_code " +
+                           "JOIN coursegroup cg ON g.group_id = cg.group_id " +
                            "WHERE cg.lecturer_id = ?";
             PreparedStatement ps = conn.prepareStatement(query);
             ps.setInt(1, lecturerId);

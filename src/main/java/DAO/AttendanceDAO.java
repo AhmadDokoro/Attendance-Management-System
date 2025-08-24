@@ -13,7 +13,7 @@ public class AttendanceDAO {
     public static int getStudentId(String matric, String password) {
         int studentId = -1;
         try (Connection con = LoginDao.getConnection()) {
-            String sql = "SELECT student_id FROM Student WHERE matric_number = ? AND password = ?";
+            String sql = "SELECT student_id FROM student WHERE matric_number = ? AND password = ?";
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setString(1, matric);
             ps.setString(2, password);
@@ -31,7 +31,7 @@ public class AttendanceDAO {
     public static boolean hasMarkedAttendance(int studentId, int sessionId) {
         boolean exists = false;
         try (Connection con = LoginDao.getConnection()) {
-            String sql = "SELECT * FROM Attendance WHERE student_id = ? AND session_id = ?";
+            String sql = "SELECT * FROM attendance WHERE student_id = ? AND session_id = ?";
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setInt(1, studentId);
             ps.setInt(2, sessionId);
@@ -47,7 +47,7 @@ public class AttendanceDAO {
     public static boolean saveAttendance(Attendance attendance) {
         boolean success = false;
         try (Connection con = LoginDao.getConnection()) {
-            String sql = "INSERT INTO Attendance (student_id, session_id, ip_address) VALUES (?, ?, ?)";
+            String sql = "INSERT INTO attendance (student_id, session_id, ip_address) VALUES (?, ?, ?)";
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setInt(1, attendance.getStudentId());
             ps.setInt(2, attendance.getSessionId());
