@@ -38,6 +38,10 @@ public class LoginDao {
 //                                                props.getProperty("db.username"),
 //                                                props.getProperty("db.password"));
 
+        System.out.println("DB_URL=" + DB_URL);
+        System.out.println("DB_USER=" + DB_USER);
+
+
             conn = DriverManager.getConnection(DB_URL,DB_USER,DB_PASS);
             
        }catch(Exception e){
