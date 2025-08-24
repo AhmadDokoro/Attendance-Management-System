@@ -1,0 +1,13 @@
+
+# Ignore build output
+/target/
+
+# Ignore IDE settings
+/.idea/
+/*.iml
+/.classpath
+/.project
+/.settings/
+
+# Ignore secrets
+src/main/resources/db.properties
