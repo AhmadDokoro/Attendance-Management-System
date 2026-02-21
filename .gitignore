@@ -11,3 +11,5 @@
 
 # Ignore secrets
 src/main/resources/db.properties
+
+My_Command.txt
