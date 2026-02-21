@@ -10,9 +10,9 @@ import java.io.InputStream;
 import java.sql.*;
 import java.util.Properties;
 public class LoginDao {
-    private static final String DB_URL = System.getenv("DB_URL");
-    private static final String DB_USER = System.getenv("DB_USER");
-    private static final String DB_PASS = System.getenv("DB_PASS");
+//    private static final String DB_URL = System.getenv("DB_URL");
+//    private static final String DB_USER = System.getenv("DB_USER");
+//    private static final String DB_PASS = System.getenv("DB_PASS");
     
        // Using static initializer block to load properties
     static Properties props = new Properties();
@@ -34,13 +34,13 @@ public class LoginDao {
            
             Class.forName("com.mysql.cj.jdbc.Driver");
             
-//            conn = DriverManager.getConnection(props.getProperty("db.url"),
-//                                                props.getProperty("db.username"),
-//                                                props.getProperty("db.password"));
+            conn = DriverManager.getConnection(props.getProperty("db.url"),
+                                                props.getProperty("db.username"),
+                                                props.getProperty("db.password"));
 
  
 
-            conn = DriverManager.getConnection(DB_URL,DB_USER,DB_PASS);
+            //conn = DriverManager.getConnection(DB_URL,DB_USER,DB_PASS);
             
        }catch(Exception e){
            System.out.println(e.getMessage());

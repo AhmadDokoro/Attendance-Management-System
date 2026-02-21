@@ -121,7 +121,7 @@ public class SessionDao {
         try (Connection con = LoginDao.getConnection()) {
             String sql = "SELECT g.group_id, g.group_name, g.course_code, c.course_name " +
                          "FROM grouptable g " +
-                         "JOIN coursecroup cg ON g.group_id = cg.group_id " +
+                         "JOIN coursegroup cg ON g.group_id = cg.group_id " +
                          "JOIN course c ON g.course_code = c.course_code " +
                          "WHERE cg.lecturer_id = ?";
             PreparedStatement ps = con.prepareStatement(sql);
