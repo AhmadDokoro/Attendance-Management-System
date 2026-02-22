@@ -36,13 +36,16 @@
             font-weight: 700;
         }
         .table-container {
-            width: 100vw;
-            margin: 0;
-            padding: 0 0 2em 0;
+            width: 100%;
+            margin: 0 auto;
+            padding: 0 24px 2em 24px;
+            box-sizing: border-box;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
             background: none;
         }
         table {
-            width: 100vw;
+            width: 100%;
             min-width: 900px;
             border-collapse: separate;
             border-spacing: 0;
@@ -104,7 +107,7 @@
                 padding: 1.2em 0.5em 1em 0.5em;
             }
             .table-container {
-                padding: 0 0 1em 0;
+                padding: 0 10px 1em 10px;
             }
             table {
                 min-width: 600px;
@@ -123,7 +126,7 @@
         }
         @media (max-width: 600px) {
             table {
-                min-width: 400px;
+                min-width: 420px;
             }
         }
     </style>

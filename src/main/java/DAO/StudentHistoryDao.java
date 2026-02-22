@@ -17,10 +17,10 @@ public class StudentHistoryDao {
         List<StudentHistory> historyList = new ArrayList<>();
 
         try (Connection con = LoginDao.getConnection()) {
-            String sql = "SELECT s.course_code, s.program_type, s.location, s.date, s.duration, s.start_time, s.end_time " +
+            String sql = "SELECT s.course_code, s.program_type, s.location, s.`date`, s.duration, s.start_time, s.end_time " +
                          "FROM attendance a " +
                          "JOIN student st ON a.student_id = st.student_id " +
-                         "JOIN session s ON a.session_id = s.session_id " +
+                         "JOIN `session` s ON a.session_id = s.session_id " +
                          "WHERE st.matric_number = ? " +
                          "ORDER BY s.date DESC, s.start_time DESC";
 

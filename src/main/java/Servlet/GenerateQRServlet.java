@@ -1,17 +1,21 @@
 package Servlet;
 
 import Utils.QRUtil;
+import Utils.PublicUrlUtil;
 import com.google.zxing.WriterException;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.*;
 import javax.servlet.RequestDispatcher;
 import java.io.*;
-import java.net.InetAddress;
 import java.util.Base64;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class GenerateQRServlet extends HttpServlet {
+
+    private static final Logger LOGGER = Logger.getLogger(GenerateQRServlet.class.getName());
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -30,11 +34,10 @@ public class GenerateQRServlet extends HttpServlet {
         // ✅ 2. Store it in session to validate later
        getServletContext().setAttribute("qr_token_session_" + sessionId, token);
 
-
-        // ✅ 3. Include token in QR content
-        String serverIP = InetAddress.getLocalHost().getHostAddress();
-        String appName = request.getContextPath();
-        String qrContent = "http://" + serverIP + ":8080" + appName + "/Student/ScanAttendance.jsp?session_id=" + sessionId + "&token=" + token;
+        // ✅ 3. Include token in QR content (PUBLIC URL, reverse-proxy safe)
+        String relativePath = "/Student/ScanAttendance.jsp?session_id=" + sessionId + "&token=" + token;
+        String qrContent = PublicUrlUtil.buildPublicUrl(request, relativePath);
+        LOGGER.info("Generating QR for session_id=" + sessionId + " url=" + qrContent);
 
         try {
             ByteArrayOutputStream qrStream = QRUtil.generateQRCode(qrContent, 300, 300);
@@ -47,7 +50,7 @@ public class GenerateQRServlet extends HttpServlet {
             dispatcher.forward(request, response);
 
         } catch (WriterException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Failed to generate QR for session_id=" + sessionId + ": " + e.getMessage(), e);
             response.getWriter().println("Failed to generate QR.");
         }
     }

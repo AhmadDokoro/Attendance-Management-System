@@ -16,7 +16,7 @@ public class getSessionsDao {
     public static List<Session> getSessionsByLecturer(int lecturerId) {
     List<Session> sessions = new ArrayList<>();
     String sql = "SELECT s.session_id, s.course_code, s.date, s.start_time, g.group_name " +
-             "FROM session s " +
+             "FROM `session` s " +
              "JOIN grouptable g ON s.group_id = g.group_id " +
              "WHERE s.lecturer_id = ? " +
              "ORDER BY s.date DESC, s.start_time DESC";

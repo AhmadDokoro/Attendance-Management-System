@@ -10,7 +10,10 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -21,6 +24,9 @@ import javax.servlet.http.HttpServletResponse;
  * @author PC
  */
 public class SaveSessionServlet extends HttpServlet {
+
+    private static final Logger LOGGER = Logger.getLogger(SaveSessionServlet.class.getName());
+    private static final DateTimeFormatter TIME_FMT = DateTimeFormatter.ofPattern("HH:mm:ss");
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -38,54 +44,71 @@ public class SaveSessionServlet extends HttpServlet {
             response.sendRedirect("Login.jsp");
             return;
         }
+        try {
+            // Get data from form
+            String location = request.getParameter("location");
+            String programType = request.getParameter("program_type");
+            String durationStr = request.getParameter("duration");
 
-        // Get data from form
-        
-        String location = request.getParameter("location");
-        String programType = request.getParameter("program_type");
-        int duration = Integer.parseInt(request.getParameter("duration"));
-        LocalTime start = LocalTime.now();  
+            int duration = Integer.parseInt(durationStr);
 
-        // 2. Calculate end time using duration (hours)
-        LocalTime end   = start.plusHours(duration);
+            // Compute times (format as HH:mm:ss to avoid fractional seconds incompatibilities)
+            LocalTime start = LocalTime.now().withNano(0);
+            LocalTime end = start.plusHours(duration);
+            String startTime = start.format(TIME_FMT);
+            String endTime = end.format(TIME_FMT);
 
-        // 3. Convert to strings 
-        String startTime = start.toString(); 
-        String endTime   = end.toString();
-       
-        //get course code and group id from the form in two 
-        String combo = request.getParameter("group_id");
-        String[] parts = combo.split(",");
-        int groupId = Integer.parseInt(parts[0]);
-        String courseCode = parts[1];
+            // Get course code and group id from combined value
+            String combo = request.getParameter("group_id");
+            if (combo == null || !combo.contains(",")) {
+                throw new IllegalArgumentException("Invalid course/group selection.");
+            }
+            String[] parts = combo.split(",", 2);
+            int groupId = Integer.parseInt(parts[0]);
+            String courseCode = parts[1];
 
+            // Today's date
+            String today = LocalDate.now().toString();
 
-        
+            // Build session object
+            Session session = new Session();
+            session.setLecturerId(lecturer.getId());
+            session.setCourseCode(courseCode);
+            session.setLocation(location);
+            session.setProgramType(programType);
+            session.setDuration(duration);
+            session.setStartTime(startTime);
+            session.setEndTime(endTime);
+            session.setDate(today);
+            session.setGroupId(groupId);
 
-        // Today's date
-        String today = LocalDate.now().toString();
+            LOGGER.info("Saving session: lecturerId=" + lecturer.getId()
+                    + ", groupId=" + groupId
+                    + ", courseCode=" + courseCode
+                    + ", programType=" + programType
+                    + ", location=" + location
+                    + ", startTime=" + startTime
+                    + ", endTime=" + endTime
+                    + ", date=" + today);
 
-        // Build session object
-        Session session = new Session();
-        session.setLecturerId(lecturer.getId());
-        session.setCourseCode(courseCode);
-        session.setLocation(location);
-        session.setProgramType(programType);
-        session.setDuration(duration);
-        session.setStartTime(startTime);
-        session.setEndTime(endTime);
-        session.setDate(today);
-        session.setGroupId(groupId);
+            // Save to DB
+            int sessionId = SessionDao.saveSession(session);
 
-        
-        // Save to DB
-        int sessionId = SessionDao.saveSession(session);
+            if (sessionId > 0) {
+                // Redirect to QR generation servlet
+                response.sendRedirect(request.getContextPath() + "/GenerateQRServlet?session_id=" + sessionId);
+            } else {
+                // DB error already logged in SessionDao
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                response.setContentType("text/plain;charset=UTF-8");
+                response.getWriter().println("Error saving session. Please try again or check server logs for details.");
+            }
 
-        if (sessionId > 0) {
-            // Redirect to QR generation servlet
-            response.sendRedirect(request.getContextPath() +"/GenerateQRServlet?session_id=" + sessionId);
-        } else {
-            response.getWriter().println("Error saving session.");
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "SaveSession failed: " + e.getMessage(), e);
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.setContentType("text/plain;charset=UTF-8");
+            response.getWriter().println("Error saving session: " + e.getMessage());
         }
     
 

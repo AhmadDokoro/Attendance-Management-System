@@ -12,6 +12,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Lecturer Dashboard</title>
     <style>
         * {
@@ -36,6 +37,34 @@
             border-bottom-left-radius: 18px;
             border-bottom-right-radius: 18px;
             backdrop-filter: blur(6px);
+        }
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            min-width: 0;
+        }
+        .menu-btn {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.25);
+            background: rgba(255,255,255,0.12);
+            color: #fff;
+            cursor: pointer;
+        }
+        .menu-btn:active {
+            transform: translateY(1px);
+        }
+        .menu-btn .bars {
+            font-size: 1.3rem;
+            line-height: 1;
+        }
+        .sidebar-overlay {
+            display: none;
         }
         .top-nav h2 {
             margin: 0;
@@ -245,6 +274,46 @@
                 flex-direction: column;
                 gap: 18px;
             }
+
+            /* Mobile drawer sidebar */
+            .menu-btn {
+                display: inline-flex;
+            }
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100vh;
+                width: 280px;
+                max-width: 84vw;
+                z-index: 1001;
+                border-radius: 0 18px 18px 0;
+                transform: translateX(-110%);
+                transition: transform 0.22s ease;
+                padding-top: 28px;
+                align-items: flex-start;
+            }
+            body.sidebar-open .sidebar {
+                transform: translateX(0);
+            }
+            .sidebar-overlay {
+                display: block;
+                position: fixed;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.35);
+                opacity: 0;
+                pointer-events: none;
+                transition: opacity 0.22s ease;
+                z-index: 1000;
+            }
+            body.sidebar-open .sidebar-overlay {
+                opacity: 1;
+                pointer-events: auto;
+            }
+            /* Keep content readable when sidebar becomes fixed */
+            .main-content {
+                padding: 18px;
+            }
         }
         @media (max-width: 700px) {
             .top-nav {
@@ -252,8 +321,26 @@
                 padding: 18px 10px;
                 border-radius: 0 0 18px 18px;
             }
+            .nav-left {
+                width: 100%;
+                justify-content: flex-start;
+            }
             .container {
                 padding: 0 6px;
+            }
+            .top-nav h2 {
+                font-size: 1.5rem;
+            }
+            .actions {
+                flex-direction: column;
+            }
+            .action-btn {
+                width: 100%;
+            }
+            .create-session,
+            .report-btn {
+                width: 100%;
+                text-align: center;
             }
         }
     </style>
@@ -261,7 +348,12 @@
 <body>
     <!-- TOP NAV -->
     <div class="top-nav">
-        <h2>Attendance Dashboard</h2>
+        <div class="nav-left">
+            <button type="button" class="menu-btn" id="menuBtn" aria-label="Open navigation" aria-controls="sidebar" aria-expanded="false">
+                <span class="bars">☰</span>
+            </button>
+            <h2>Attendance Dashboard</h2>
+        </div>
         <div class="profile-box">
             <img src="https://cdn-icons-png.flaticon.com/512/3135/3135768.png" alt="Profile" />
             <span><%= lecturer.getName() %></span>
@@ -270,10 +362,13 @@
             </form>
         </div>
     </div>
+
+    <!-- Mobile overlay (drawer close target) -->
+    <div class="sidebar-overlay" id="sidebarOverlay" aria-hidden="true"></div>
     <div class="container">
         <div class="dashboard-layout">
             <!-- SIDEBAR -->
-            <aside class="sidebar">
+            <aside class="sidebar" id="sidebar">
                 <img src="https://cdn-icons-png.flaticon.com/512/3135/3135768.png" class="avatar" alt="Lecturer Avatar" />
                 <div class="lecturer-name"><%= lecturer.getName() %></div>
                 <nav class="sidebar-nav">
@@ -327,6 +422,45 @@
             </main>
         </div>
     </div>
+    <script>
+        (function () {
+            const menuBtn = document.getElementById('menuBtn');
+            const overlay = document.getElementById('sidebarOverlay');
+            const sidebar = document.getElementById('sidebar');
+
+            function setOpen(open) {
+                document.body.classList.toggle('sidebar-open', open);
+                if (menuBtn) {
+                    menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+                }
+            }
+
+            if (menuBtn) {
+                menuBtn.addEventListener('click', function () {
+                    setOpen(!document.body.classList.contains('sidebar-open'));
+                });
+            }
+            if (overlay) {
+                overlay.addEventListener('click', function () {
+                    setOpen(false);
+                });
+            }
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') {
+                    setOpen(false);
+                }
+            });
+            if (sidebar) {
+                sidebar.addEventListener('click', function (e) {
+                    // If a nav link is tapped on mobile, close the drawer.
+                    const target = e.target;
+                    if (target && target.closest && target.closest('a')) {
+                        setOpen(false);
+                    }
+                });
+            }
+        })();
+    </script>
     </body>
 </html>
 

@@ -32,7 +32,7 @@ public class DeleteSessionServlet extends HttpServlet {
         String sessionId = request.getParameter("session_id");
         if (sessionId != null) {
             try (Connection con = LoginDao.getConnection()) {
-                PreparedStatement ps = con.prepareStatement("DELETE FROM Session WHERE session_id = ?");
+                PreparedStatement ps = con.prepareStatement("DELETE FROM `session` WHERE session_id = ?");
                 ps.setInt(1, Integer.parseInt(sessionId));
                 ps.executeUpdate();
             } catch (Exception e) {

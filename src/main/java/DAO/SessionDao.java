@@ -9,35 +9,49 @@ import Model.Session;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class SessionDao {
+
+    private static final Logger LOGGER = Logger.getLogger(SessionDao.class.getName());
 
     public static int saveSession(Session session) {
         int sessionId = -1;
 
         try (Connection con = LoginDao.getConnection()) {
-            String sql = "INSERT INTO session (lecturer_id, group_id, course_code, program_type, location, start_time, end_time, duration, date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            // NOTE: `session` and `date` can be problematic identifiers on some MySQL-compatible systems.
+            // Quoting makes this work reliably on MySQL/TiDB in hosted Linux environments.
+            String sql = "INSERT INTO `session` (lecturer_id, group_id, course_code, program_type, location, start_time, end_time, duration, `date`) "
+                    + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-            ps.setInt(1, session.getLecturerId());
-            ps.setInt(2, session.getGroupId());
-            ps.setString(3, session.getCourseCode());
-            ps.setString(4, session.getProgramType());
-            ps.setString(5, session.getLocation());
-            ps.setString(6, session.getStartTime());
-            ps.setString(7, session.getEndTime());
-            ps.setInt(8, session.getDuration());
-            ps.setString(9, session.getDate());
+            try (PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+                ps.setInt(1, session.getLecturerId());
+                ps.setInt(2, session.getGroupId());
+                ps.setString(3, session.getCourseCode());
+                ps.setString(4, session.getProgramType());
+                ps.setString(5, session.getLocation());
+                ps.setString(6, session.getStartTime());
+                ps.setString(7, session.getEndTime());
+                ps.setInt(8, session.getDuration());
+                ps.setString(9, session.getDate());
 
-            ps.executeUpdate();
+                ps.executeUpdate();
 
-            ResultSet rs = ps.getGeneratedKeys();
-            if (rs.next()) {
-                sessionId = rs.getInt(1);
+                try (ResultSet rs = ps.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        sessionId = rs.getInt(1);
+                    }
+                }
             }
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE,
+                    "saveSession SQL error (state=" + e.getSQLState() + ", code=" + e.getErrorCode() + "): " + e.getMessage(),
+                    e);
+        } catch (RuntimeException e) {
+            // getConnection() throws RuntimeException on failures
+            LOGGER.log(Level.SEVERE, "saveSession runtime error: " + e.getMessage(), e);
         }
 
         return sessionId;
@@ -48,7 +62,7 @@ public class SessionDao {
 
     try (Connection con = LoginDao.getConnection()) {
         String sql = "SELECT s.*, g.group_name " +
-                     "FROM session s " +
+                     "FROM `session` s " +
                      "JOIN grouptable g ON s.group_id = g.group_id " +
                      "WHERE s.session_id = ?";
         PreparedStatement ps = con.prepareStatement(sql);
@@ -72,7 +86,7 @@ public class SessionDao {
         }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "getSessionById error: " + e.getMessage(), e);
         }
 
         return session;
@@ -82,7 +96,7 @@ public class SessionDao {
     public static Session getSessionByIdForUpdateAttendance(int sessionId) {
     Session session = null;
     try (Connection con = LoginDao.getConnection()) {
-        String sql = "SELECT * FROM session WHERE session_id = ?";
+        String sql = "SELECT * FROM `session` WHERE session_id = ?";
         PreparedStatement ps = con.prepareStatement(sql);
         ps.setInt(1, sessionId);
         ResultSet rs = ps.executeQuery();
@@ -99,7 +113,7 @@ public class SessionDao {
             session.setDate(rs.getString("date"));
         }
     } catch (Exception e) {
-        e.printStackTrace();
+        LOGGER.log(Level.SEVERE, "getSessionByIdForUpdateAttendance error: " + e.getMessage(), e);
     }
     return session;
 }
